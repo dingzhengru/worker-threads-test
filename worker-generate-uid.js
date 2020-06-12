@@ -2,7 +2,7 @@ import { nanoid } from 'nanoid';
 import { parentPort, workerData } from 'worker_threads';
 
 parentPort.on('message', task => {
-  if (task == 'close') {
+  if (task == '任務結束') {
     parentPort.close();
     return;
   }

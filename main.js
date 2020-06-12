@@ -9,9 +9,8 @@ import { Worker } from 'worker_threads';
 /**
  * * 基本測試
  * new Worker(filename, options)
- * 主線程(main):
- * 支線程(worker):
- * 兩者都可以互相接收、傳送資訊
+ * 主線程、支線程都可以互相接收、傳送資訊
+ * 支線程關閉需調用 .close() 方法，支線程不關閉，主線程是不會結束的
  */
 
 const worker1Data = '11111111111';
@@ -34,9 +33,10 @@ worker2.on('message', msg => {
 });
 
 /**
- * * 產生 兩萬筆 uid
- * * 將全任務放進一個 Array，一個一個 pop() 出來給 work 做
+ * * 任務: 產兩萬筆 uid
+ * * 將全任務放進一個 Array，一個一個 pop() 出來給 thread 做
  * * 支線程做完 => 傳送結果給主線程 => 主線程再傳任務給支線程
+ * * => 任務結束 => 主線程傳送"結束訊息" => 支線程收到結束訊息，調用 .close 關閉
  */
 
 const taskCount = 100000; // 任務數量
@@ -45,7 +45,7 @@ const threadCount = 4; // 支線程數量
 const taskList = []; // 工作列表
 const threadList = []; // 支線程列表
 
-const uidList = [];
+const uidList = []; // uid 列表(任務結果)
 
 // 單純是做一個任務列表
 let index = 1;
@@ -71,9 +71,8 @@ for (const thread of threadList) {
       // 當任務清單還有時，繼續傳任務給支線程
       thread.postMessage(taskList.pop());
     } else {
-      // 任務全都完成後
-      // 傳送一筆訊息，告訴支線程可以關閉了
-      thread.postMessage('close');
+      // 任務全都完成後，傳送一筆訊息，告訴支線程可以關閉了
+      thread.postMessage('任務結束');
 
       if(uidList.length == taskCount) { // 全都結束後，uidList 應有的數量
         console.log(uidList)
