@@ -19,6 +19,6 @@
   "homepage": "https://github.com/dingzhengru/worker-threads-test#readme",
   "dependencies": {
     "esm": "^3.2.25",
-    "nanoid": "^3.1.9"
+    "nanoid": "^3.1.31"
   }
 }
